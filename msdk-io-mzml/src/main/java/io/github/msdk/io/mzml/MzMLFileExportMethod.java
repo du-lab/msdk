@@ -246,6 +246,17 @@ public class MzMLFileExportMethod implements MSDKMethod<Void> {
           }
         }
 
+        // polarity
+        if (!(rawDataFile instanceof MzMLRawDataFile) || (rawDataFile instanceof MzMLRawDataFile
+                && !spectrum.getCVValue(MzMLCV.cvPolarityPositive).isPresent()
+                && !spectrum.getCVValue(MzMLCV.cvPolarityNegative).isPresent())) {
+          PolarityType polarityType = scan.getPolarity();
+          if (scan.getPolarity() == PolarityType.POSITIVE)
+            writeCVParam(xmlStreamWriter, MzMLCV.polarityNegativeCvParam);
+          else
+            writeCVParam(xmlStreamWriter, MzMLCV.polarityPositiveCvParam);
+        }
+
         // m/z range CV param
         if (!(rawDataFile instanceof MzMLRawDataFile) || (rawDataFile instanceof MzMLRawDataFile
             && !spectrum.getCVValue(MzMLCV.cvLowestMz).isPresent()
