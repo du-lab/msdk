@@ -75,6 +75,24 @@ public class MzMLParser {
       CharArray openingTagName) {
     tracker.enter(openingTagName);
 
+    if (tracker.current().contentEquals((MzMLTags.TAG_RUN))) {
+      final CharArray defaultInstrumentConfigurationRef =
+          getRequiredAttribute(xmlStreamReader, MzMLTags.ATTR_DEFAULT_INSTRUMENT_CONFIGURATION_REF);
+      newRawFile.setDefaultInstrumentConfiguration(defaultInstrumentConfigurationRef.toString());
+    }
+
+    if (tracker.current().contentEquals((MzMLTags.TAG_SPECTRUM_LIST))) {
+      final CharArray defaultDataProcessingRefScan =
+          getRequiredAttribute(xmlStreamReader, MzMLTags.ATTR_DEFAULT_DATA_PROCESSING_REF);
+      newRawFile.setDefaultDataProcessingScan(defaultDataProcessingRefScan.toString());
+    }
+
+    if (tracker.current().contentEquals((MzMLTags.TAG_CHROMATOGRAM_LIST))) {
+      final CharArray defaultDataProcessingRefChromatogram =
+          getRequiredAttribute(xmlStreamReader, MzMLTags.ATTR_DEFAULT_DATA_PROCESSING_REF);
+      newRawFile.setDefaultDataProcessingScan(defaultDataProcessingRefChromatogram.toString());
+    }
+
     if (tracker.inside(MzMLTags.TAG_REF_PARAM_GROUP_LIST)) {
 
       if (openingTagName.contentEquals(MzMLTags.TAG_REF_PARAM_GROUP)) {
@@ -129,7 +147,7 @@ public class MzMLParser {
           // from integrating from the scan's intensities.
           // Retain the MzMLCV.cvTIC so it can be retrieved from the MzMLMsScan object.
           // if (!cvParam.getAccession().equals(MzMLCV.cvTIC))
-            vars.spectrum.getCVParams().addCVParam(cvParam);
+          vars.spectrum.getCVParams().addCVParam(cvParam);
 
         } else if (tracker.inside(MzMLTags.TAG_SCAN_LIST)) {
           MzMLCVParam cvParam = createMzMLCVParam(xmlStreamReader);
@@ -160,9 +178,8 @@ public class MzMLParser {
       } else if (openingTagName.contentEquals(MzMLTags.TAG_BINARY)) {
         if (vars.spectrum != null && !vars.skipBinaryDataArray) {
           int bomOffset = xmlStreamReader.getLocation().getBomLength();
-          // TODO Fetch long value from getCharacterOffset()
           vars.binaryDataInfo
-              .setPosition(xmlStreamReader.getLocation().getCharacterOffset() + bomOffset);
+              .setPosition(xmlStreamReader.getLocation().getTotalCharsRead() + bomOffset);
         }
         if (!vars.skipBinaryDataArray) {
           if (MzMLCV.cvMzArray.equals(vars.binaryDataInfo.getArrayType().getAccession())) {
@@ -267,9 +284,8 @@ public class MzMLParser {
       } else if (openingTagName.contentEquals(MzMLTags.TAG_BINARY)) {
         if (vars.chromatogram != null && !vars.skipBinaryDataArray) {
           int bomOffset = xmlStreamReader.getLocation().getBomLength();
-          // TODO Fetch long value from getCharacterOffset()
           vars.binaryDataInfo
-              .setPosition(xmlStreamReader.getLocation().getCharacterOffset() + bomOffset);
+              .setPosition(xmlStreamReader.getLocation().getTotalCharsRead() + bomOffset);
         }
         if (!vars.skipBinaryDataArray) {
           if (MzMLCV.cvRetentionTimeArray
@@ -556,7 +572,9 @@ public class MzMLParser {
   }
 
   /**
-   * <p>manageCompression.</p>
+   * <p>
+   * manageCompression.
+   * </p>
    *
    * @param binaryInfo a {@link io.github.msdk.io.mzml.data.MzMLBinaryDataInfo} object.
    * @param accession a {@link java.lang.String} object.
@@ -598,7 +616,9 @@ public class MzMLParser {
   }
 
   /**
-   * <p>getMzMLRawFile.</p>
+   * <p>
+   * getMzMLRawFile.
+   * </p>
    *
    * @return a {@link io.github.msdk.io.mzml.data.MzMLRawDataFile MzMLRawDataFile} containing the
    *         parsed data
