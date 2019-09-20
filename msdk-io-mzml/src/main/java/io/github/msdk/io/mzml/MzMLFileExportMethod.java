@@ -260,7 +260,7 @@ public class MzMLFileExportMethod implements MSDKMethod<Void> {
                 && !spectrum.getCVValue(MzMLCV.cvPolarityNegative).isPresent())) {
           if (scan.getPolarity() == PolarityType.POSITIVE)
             writeCVParam(xmlStreamWriter, MzMLCV.polarityNegativeCvParam);
-          else
+          else if (scan.getPolarity() == PolarityType.POSITIVE)
             writeCVParam(xmlStreamWriter, MzMLCV.polarityPositiveCvParam);
         }
 
